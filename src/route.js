@@ -16,6 +16,15 @@ router.get('/usertopending', getPending);
 router.post('/signup', signUp);
 router.post('/signin', basicAuthMiddleware, signIn);
 
+app.post('/active', getActive);
+app.get('/download', printData);
+app.post('/data', getStudentData);
+
+
+// app.get('/report', postReportStudentData);
+
+/****** FUNCTIONS PART ******/
+
 function test(req, res) {
     res.send('hello');
 }
@@ -59,6 +68,39 @@ function getPending(req, res, next) {
 function toPending(req, res, next) {
     pendingUser.create(req.body)
         .then(user => res.send(user))
+}
+
+function getActive(req, res) {
+    console.log("term ():", req.body.term)
+    superagent.get(`https://sisclientweb-test-100533.campusnexus.cloud/ds/odata/StudentCourses?$filter=Term/Code%20eq%20%27${req.body.term}%27&$select=Id,ClockHoursEarned,CreditHoursEarned&$expand=Student($select=StudentNumber,FirstName,LastName),Enrollment($select=EnrollmentNumber;$expand=Student($select=FullName),ProgramVersion($select=IsActive,ClockHoursRequired,CreditHoursRequired,Name)),Term($select=Name,Code)`)
+        .auth('Asharora', 'P@ssword1')
+        .then(data => res.send(data.body))
+        .catch(e => {
+            console.log('Error Massages', e.massage);
+        })
+}
+
+function getStudentData(req, res) {
+    let leadId = req.body.leadId;
+    console.log("req.body () :", req.body.leadId);
+    let urlAPI = `https://crmclientweb-test-100533.campusnexus.cloud/NexusCrmODataFeed/Leads?IsAudit=undefined&$count=true&$select=LeadId,Name,Email,Mobile&$expand=NavigationNationalityId($select=NationalityDescrip,Name)&$filter=LeadId%20eq%20${leadId}`
+    superagent.get(urlAPI)
+        .auth('asharora', 'P@ssword1')
+        .then(data => res.send(data.body))
+        .catch(e => {
+            console.log('Error Massages', e.massage);
+        })
+}
+
+function printData(req, res) {
+    superagent.post('https://as-har.jsreportonline.net/api/report')
+        .auth('asharoran96@gmail.com', 'Ashar@@@@@1')
+        .set('Content-Type', 'application/json')
+        .send({
+            template: { shortid: "SyeO-uoDGw" },
+            data: req.body
+        })
+        .pipe(res)
 }
 
 const passwordGenerator = () => {
