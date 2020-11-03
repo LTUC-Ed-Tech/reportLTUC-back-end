@@ -16,9 +16,9 @@ router.get('/usertopending', getPending);
 router.post('/signup', signUp);
 router.post('/signin', basicAuthMiddleware, signIn);
 
-app.post('/active', getActive);
-app.get('/download', printData);
-app.post('/data', getStudentData);
+router.post('/active', getActive);
+router.get('/download', printData);
+router.post('/data', getStudentData);
 
 
 // app.get('/report', postReportStudentData);
